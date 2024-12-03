@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import HTTPException, Depends
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 from typing import Tuple
@@ -15,9 +15,9 @@ def create_directory_sync(storage_name: str, dir_name: str) -> str:
             file_system_client.create_directory(dir_name)
             return "Directory Created Successfully!"
         else:
-            return "Directory Already Exists"
+            raise HTTPException(status_code=409, detail="Directory Already Exists")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create directory: {e}")
+        raise HTTPException(status_code=409, detail=f"Failed to create directory: {e}")
 
 async def create_directory_async(storage_name: str, dir_name: str) -> str:
     """Async wrapper for the blocking create_directory_sync function."""

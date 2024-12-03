@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query
-from client import dl_service_client, directory_exists
+from client import dl_service_client, directory_exists, storage_exists
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import logging
@@ -15,6 +15,9 @@ executor = ThreadPoolExecutor(max_workers=5)
 def delete_file_in_dir_sync(storage_name: str, dir_name: str, file_name: str) -> bool:
     """Synchronous function to delete a file in a directory."""
     try:
+        if not storage_exists(storage_name):
+            raise HTTPException(status_code=404, detail="Storage Does Not Exist")
+
         if directory_exists(storage_name, dir_name):
             file_system_client = dl_service_client.get_file_system_client(storage_name)
             dir_client = file_system_client.get_directory_client(dir_name)
@@ -22,8 +25,10 @@ def delete_file_in_dir_sync(storage_name: str, dir_name: str, file_name: str) ->
                 file_client = dir_client.get_file_client(file_name)
                 file_client.delete_file()
                 return True
+            else:
+                raise HTTPException(status_code=404, detail="File Does Not Exist")
         else:
-            return False
+            raise HTTPException(status_code=404, detail="Directory Does Not Exist")
 
     except Exception as e:
         logger.error(f"Failed to delete file {os.path.join(dir_name, file_name)}: {str(e)}")

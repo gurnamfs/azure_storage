@@ -56,11 +56,8 @@ async def delete_directory(storage_name: str, dir_name: str):
         success = await delete_dir_async(storage_name, dir_name)
         if success:
             return "Directory deleted successfully"
-        else:
-            raise HTTPException(status_code=404, detail="Directory not found")
     except HTTPException as e:
-        # Re-raise the HTTPException so FastAPI handles it
-        raise e
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 

@@ -2,7 +2,7 @@ from azure.storage.filedatalake import DataLakeServiceClient
 from azure.storage.filedatalake import DataLakeDirectoryClient
 from dotenv import load_dotenv
 import os
-
+from fastapi import HTTPException
 load_dotenv()
 
 CONN_STR_MOLINA = os.getenv("CONN_STR_MOLINA")
@@ -13,8 +13,6 @@ def storage_exists(storage_name):
 
 
 def directory_exists(storage_name, dir_name):
-    if storage_exists(storage_name):
-        return DataLakeDirectoryClient.from_connection_string(CONN_STR_MOLINA, storage_name, dir_name).exists()
-    else:
-        return False
+    return DataLakeDirectoryClient.from_connection_string(CONN_STR_MOLINA, storage_name, dir_name).exists()
+
 
